@@ -78,15 +78,15 @@
       "type": "string",
       "required": true
     },
-    "payment-credit-card-expiration": {
+    "payment-card-expiration": {
       "type": "string",
       "required": true
     },
-    "payment-credit-card-name": {
+    "credit-card-name": {
       "type": "string",
       "required": true
     },
-    "payment-credit-card-cvv": {
+    "credit-card-cvv": {
       "type": "number",
       "required": true
     }

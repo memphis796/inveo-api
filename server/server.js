@@ -46,10 +46,37 @@ app.middleware('parse', bodyParser.urlencoded({
   extended: true
 }));
 
+/// Added to set current user!
+app.use(loopback.context());
+
 // The access token is only available after boot
 app.middleware('auth', loopback.token({
   model: app.models.accessToken
 }));
+
+/// Added to set current user!
+app.use(function setCurrentUser(req, res, next) {
+  if (!req.accessToken) {
+    console.log('no current user');
+    return next();
+  }
+  app.models.EndUser.findById(req.accessToken.userId, function(err, user) {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return next(new Error('No user with this access token was found.'));
+    }
+    var loopbackContext = loopback.getCurrentContext();
+    if (loopbackContext) {
+      console.log('setting current user in loopback context');
+      loopbackContext.set('currentUser', user);
+    } else {
+      console.log('no loopback context to set current user in');
+    }
+    next();
+  });
+});
 
 app.middleware('session:before', loopback.cookieParser(app.get('cookieSecret')));
 app.middleware('session', loopback.session({
