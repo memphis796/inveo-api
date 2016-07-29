@@ -1,12 +1,30 @@
 function migrateModel(database, modelName) {
   return new Promise(function(resolve, reject) {
-    database.automigrate(modelName, function(err) {
+    console.log('automigrating', modelName);
+    database.isActual(modelName, function (err, actual) {
       if (err) {
-        reject(err);
+        return reject(err);
       }
+      if (actual) {
+        return resolve();
+      }
+      database.autoupdate(modelName, function(err) {
+        if (err) {
+          return reject(err);
+        }
 
-      resolve();
-    })
+        console.log('automigrated', modelName);
+        console.log('discovering model properties', modelName);
+        database.discoverModelProperties(modelName, function (err, props) {
+          if (err) {
+            return reject(err);
+          }
+
+          console.log('discovered model properties', props);
+          resolve();
+        });
+      });
+    });
   });
 }
 
@@ -17,13 +35,11 @@ module.exports = function(server) {
   server.use(router);
 
   router.get(`/migrations`, function(req, res) {
-    const db = server.dataSources.pg;
+    const db = server.dataSources.db;
     const models = [
-      'User',
-      'AccessToken',
-      'ACL',
-      'RoleMapping',
-      'Role',
+      'end-user',
+      'laptop',
+      'order'
     ];
 
     Promise.all(models.map(function(model) {
@@ -33,6 +49,8 @@ module.exports = function(server) {
         status: 200,
         message: 'Migration Complete',
       });
+    }).catch(function(err) {
+      console.error(err)
     });
   });
 };

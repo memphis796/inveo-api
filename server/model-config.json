@@ -46,5 +46,13 @@
   "container": {
     "dataSource": "storage",
     "public": true
+  },
+  "laptop": {
+    "dataSource": "db",
+    "public": true
+  },
+  "order": {
+    "dataSource": "db",
+    "public": true
   }
 }
